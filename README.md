@@ -1,11 +1,25 @@
-# Scalable Web Service with Golang - DTS Kominfo
+# Assignment 1
 
-Repository ini ditujukan untuk dokumentasi tugas pada modul **Scalable Web Service with Golang**
+## Instructions
 
-## List Tugas
+Buatlah sebuah service berupa CLI untuk menampilkan data teman-teman kalian dikelas.
+Contohnya, ketika kalian menjalankan perintah go run biodata.go
+1 maka data yang akan muncul adalah datateman kalian dengan absen no 1.
+Data yang harus ditampilkan yaitu:
 
-Tugas akan dipisah berdasarkan *branch*. Berikut list tugas:
+- Nama
+- Alamat
+- Pekerjaan
+- Alasan memilih kelas
 
-- Assignment 1
-- Assignment 2
-- Assignment 3
+Golang Gunakanlah struct dan function untuk menampilkan data tersebut.
+
+> Kalian bisa menggunakan os.Args untuk mendapatkan argument pada terminal.
+
+## How to Run
+
+```cli
+go run cmd/main.go *number*
+```
+
+> Masukan angka data yang ingin dipilih
