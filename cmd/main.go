@@ -29,6 +29,7 @@ func main() {
 	// Route
 	app.POST("/orders", orderHandler.CreateOrder)
 	app.GET("/orders", orderHandler.GetOrder)
+	app.PUT("/orders/:id", orderHandler.UpdateOrder)
 	app.DELETE("/orders/:id", orderHandler.DeleteOrder)
 
 	app.Run(":8080")

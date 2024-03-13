@@ -103,3 +103,33 @@ func (h *handler) DeleteOrder(ctx *gin.Context) {
 		"message": "Successfully delete order",
 	})
 }
+
+func (h *handler) UpdateOrder(ctx *gin.Context) {
+	var req UpdateOrderRequest
+
+	id, _ := strconv.Atoi(ctx.Param("id"))
+
+	err := ctx.ShouldBindJSON(&req)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
+	res, err := h.OrderService.UpdateOrder(uint(id), &req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Null record affected",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusAccepted, gin.H{
+		"status":  "success",
+		"message": "Successfully delete order",
+		"data":    res,
+	})
+}

@@ -51,6 +51,32 @@ func (r *repository) Delete(orderId uint) error {
 	return nil
 }
 
-func (r *repository) Update(orderId uint, order *Order) (*Order, error) {
+func (r *repository) Update(orderReq *Order) (*Order, error) {
+	var order Order
+	if err := r.db.Preload("Item").First(&order, orderReq.Id).Error; err != nil {
+		return nil, err
+	}
 
+	fmt.Println("order repo", order)
+
+	order.CustomerName = orderReq.CustomerName
+	order.OrderedAt = orderReq.OrderedAt
+
+	for _, item := range orderReq.Item {
+		fmt.Println("111", item)
+		for i, existingItem := range orderReq.Item {
+			if existingItem.Id == uint(item.Id) {
+				order.Item[i] = Item{
+					Id:          item.Id,
+					Code:        item.Code,
+					Description: item.Description,
+					Quantity:    item.Quantity,
+				}
+				break
+			}
+		}
+	}
+
+	r.db.Save(&order)
+	return &order, nil
 }

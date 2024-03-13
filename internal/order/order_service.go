@@ -78,3 +78,27 @@ func (s *service) DeleteOrder(req *DeleteOrderRequest) error {
 
 	return err
 }
+
+func (s *service) UpdateOrder(orderId uint, req *UpdateOrderRequest) (*UpdateOrderResponse, error) {
+
+	order := &Order{
+		Id:           orderId,
+		CustomerName: req.CustomerName,
+		OrderedAt:    req.OrderedAt,
+		Item:         req.Item,
+	}
+
+	res, err := s.OrderRepository.Update(order)
+	if err != nil {
+		return nil, err
+	}
+
+	result := &UpdateOrderResponse{
+		Id:           res.Id,
+		CustomerName: res.CustomerName,
+		OrderedAt:    res.OrderedAt,
+		Item:         res.Item,
+	}
+
+	return result, nil
+}
