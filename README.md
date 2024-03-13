@@ -1,11 +1,30 @@
-# Scalable Web Service with Golang - DTS Kominfo
+# Assignment 2
 
-Repository ini ditujukan untuk dokumentasi tugas pada modul **Scalable Web Service with Golang**
+## Instructions
 
-## List Tugas
+### Create a REST API server use
 
-Tugas akan dipisah berdasarkan *branch*. Berikut list tugas:
+- Gin
+- Postgresql
+- GORM / Raw query
 
-- Assignment 1
-- Assignment 2
-- Assignment 3
+### Database structure
+
+[Link](https://dbdiagram.io/d/Assignment-2-FGA-65eb2746b1f3d4062c76d5d9) ERD
+
+### REST API server must include below endpoint
+
+- Create Order
+- Get Orders
+- Update Order
+- Delete Order
+
+### Request + Repsonse
+
+[Link](https://anotepad.com/notes/3sjp4bg3) Request + Response
+
+Please make sure to use proper HTTP code
+
+## How to run
+
+- Edit .yaml file
