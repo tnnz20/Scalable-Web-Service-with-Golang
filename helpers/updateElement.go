@@ -2,16 +2,17 @@ package helpers
 
 import (
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/go-co-op/gocron"
 	"github.com/tnnz20/Scalable-Web-Service-with-Golang/models"
 )
 
-func updateElement(randNum *RandSlice) (result *models.Element) {
+func updateElement(min, max int) (result *models.Element) {
 	result = &models.Element{
-		Water: rune(randNum.num1),
-		Wind:  rune(randNum.num2),
+		Water: rune(rand.Intn(max-min) + min),
+		Wind:  rune(rand.Intn(max-min) + min),
 	}
 	return
 }
@@ -55,7 +56,7 @@ func RunCronJob() {
 	s := gocron.NewScheduler(time.UTC)
 
 	s.Every(15).Seconds().Do(func() {
-		Element := updateElement(RandomNum(1, 100))
+		Element := updateElement(1, 100)
 		Condition := checkCondition(Element)
 
 		log.Printf("Element Water: %v m, Status %v\n", Element.Water, Condition.WaterStatus)
