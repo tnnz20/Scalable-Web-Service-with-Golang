@@ -54,12 +54,12 @@ func checkCondition(element *models.Element) (status *models.Status) {
 func RunCronJob() {
 	s := gocron.NewScheduler(time.UTC)
 
-	s.Every(5).Seconds().Do(func() {
+	s.Every(15).Seconds().Do(func() {
 		Element := updateElement(RandomNum(1, 100))
 		Condition := checkCondition(Element)
 
-		log.Printf("Element Water: %v, Status %v\n", Element.Water, Condition.WaterStatus)
-		log.Printf("Element Wind: %v, Status %v\n", Element.Wind, Condition.WindStatus)
+		log.Printf("Element Water: %v m, Status %v\n", Element.Water, Condition.WaterStatus)
+		log.Printf("Element Wind: %v m/s, Status %v\n", Element.Wind, Condition.WindStatus)
 	})
 
 	s.StartBlocking()
