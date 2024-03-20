@@ -1,8 +1,10 @@
 package helpers
 
 import (
+	"encoding/json"
 	"log"
 	"math/rand"
+	"os"
 	"time"
 
 	"github.com/go-co-op/gocron"
@@ -52,15 +54,38 @@ func checkCondition(element *models.Element) (status *models.Status) {
 	return
 }
 
+func writeJSON(element *models.Element) {
+	jsonData, err := json.Marshal(element)
+	if err != nil {
+		log.Println("Error marshalling JSON:", err)
+		return
+	}
+
+	file, err := os.Create("data/element.json")
+	if err != nil {
+		log.Println("Error creating file:", err)
+		return
+	}
+
+	defer file.Close()
+
+	_, err = file.Write(jsonData)
+	if err != nil {
+		log.Println("Error writing JSON to file:", err)
+		return
+	}
+}
+
 func RunCronJob() {
 	s := gocron.NewScheduler(time.UTC)
 
-	s.Every(15).Seconds().Do(func() {
+	s.Every(5).Seconds().Do(func() {
 		Element := updateElement(1, 100)
-		Condition := checkCondition(Element)
+		// Condition := checkCondition(Element)
 
-		log.Printf("Element Water: %v m, Status %v\n", Element.Water, Condition.WaterStatus)
-		log.Printf("Element Wind: %v m/s, Status %v\n", Element.Wind, Condition.WindStatus)
+		writeJSON(Element)
+		// log.Printf("Element Water: %v m, Status %v\n", Element.Water, Condition.WaterStatus)
+		// log.Printf("Element Wind: %v m/s, Status %v\n", Element.Wind, Condition.WindStatus)
 	})
 
 	s.StartBlocking()
