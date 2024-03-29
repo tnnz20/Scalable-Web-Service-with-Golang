@@ -1,37 +1,30 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"os"
 	"strconv"
 
-	"github.com/tnnz20/Scalable-Web-Service-with-Golang/biodata"
+	"github.com/tnnz20/Scalable-Web-Service-with-Golang/pkg/datasource"
+	"github.com/tnnz20/Scalable-Web-Service-with-Golang/pkg/helpers"
 )
 
-func checkInput(input int, s []biodata.Biodata) (biodata.Biodata, error) {
-	if input > len(s) || input < 1 {
-		msg := fmt.Sprintf("INDEX OUT OF RANGE: Mohon Masukan Angka dari 1 - %d", len(s))
-		return biodata.Biodata{}, errors.New(msg)
-	} else {
-		return s[input-1], nil
-	}
-}
-
 func main() {
-	biodataStruct := biodata.Biodata{}
-	listStudent := biodataStruct.GetListBiodata()
+	Students := datasource.ListStudent
 
 	if len(os.Args) > 1 {
 		input, err := strconv.Atoi(os.Args[1])
 		if err != nil {
-			panic("Bukan angka, Mohon masukan Angka terlebih dahulu...")
+			panic("Bukan angka, mohon masukan angka...")
 		}
-		bio, err := checkInput(input, listStudent)
+
+		// Check Input
+		bio, err := helpers.CheckInput(input, Students)
 		if err != nil {
 			panic(err)
 		}
-		bio.GetBiodata(input)
+
+		bio.PrintBiodata(input)
 	} else {
 		panic("Mohon masukan angka terlebih dahulu...")
 	}

@@ -1,6 +1,10 @@
-package biodata
+package datasource
 
-var ListStudent = []Biodata{
+import (
+	"github.com/tnnz20/Scalable-Web-Service-with-Golang/internal/domain"
+)
+
+var ListStudent = []domain.Biodata{
 	{
 		Name:    "Hakori",
 		Address: "BJM",
