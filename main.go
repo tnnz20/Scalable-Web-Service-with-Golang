@@ -1,16 +1,29 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"net/http"
+	"time"
 
-	"github.com/tnnz20/Scalable-Web-Service-with-Golang/helpers"
+	"github.com/tnnz20/Scalable-Web-Service-with-Golang/internal/handler"
+	"github.com/tnnz20/Scalable-Web-Service-with-Golang/pkg/helpers"
 )
 
 func main() {
-	fmt.Println("Hello world")
+	// Update data every 5 seconds
+	ticker := time.NewTicker(15 * time.Second)
+	go func() {
+		for range ticker.C {
+			element := helpers.UpdateElement(1, 100)
+			helpers.WriteJSON(element)
+			log.Println("Element updated")
+		}
+	}()
 
-	helpers.RunCronJob()
+	http.Handle("/views/", http.StripPrefix("/views/", http.FileServer(http.Dir("views"))))
+	http.HandleFunc("/", handler.RenderHTML)
 
-	// fmt.Println(helpers.RandomNum(1, 100))
-
+	// Serve the web service
+	log.Println("Server started on :8080")
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }

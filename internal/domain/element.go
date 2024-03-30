@@ -1,8 +1,8 @@
-package models
+package domain
 
 type Element struct {
-	Water rune `json:water`
-	Wind  rune `json:wind`
+	Water rune `json:"water"`
+	Wind  rune `json:"wind"`
 }
 
 type Status struct {
