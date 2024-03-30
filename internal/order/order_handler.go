@@ -1,10 +1,12 @@
 package order
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
 type handler struct {
@@ -48,10 +50,10 @@ func (h *handler) CreateOrder(ctx *gin.Context) {
 func (h *handler) GetOrder(ctx *gin.Context) {
 	res, err := h.OrderService.GetOrder()
 	if err != nil {
-		if err.Error() == "empty" {
+		if errors.Is(err, ErrOrderEmpty) {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"status":  "error",
-				"message": "Order still empty.",
+				"message": err.Error(),
 			})
 			return
 		}
@@ -72,22 +74,28 @@ func (h *handler) GetOrder(ctx *gin.Context) {
 func (h *handler) DeleteOrder(ctx *gin.Context) {
 	var req DeleteOrderRequest
 
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": ErrInvalidID.Error(),
+		})
+		return
+	}
 	req.Id = uint(id)
 
-	err := h.OrderService.DeleteOrder(&req)
-
+	err = h.OrderService.DeleteOrder(&req)
 	if err != nil {
-		if err.Error() == "not found" {
+		if errors.Is(err, ErrNullRecordAffected) {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"status":  "error",
-				"message": "Order not found",
+				"message": err.Error(),
 			})
 			return
-		} else if err.Error() == "null" {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
+		} else if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{
 				"status":  "error",
-				"message": "Null record affected",
+				"message": "order not found",
 			})
 			return
 		}
@@ -96,6 +104,7 @@ func (h *handler) DeleteOrder(ctx *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -107,9 +116,16 @@ func (h *handler) DeleteOrder(ctx *gin.Context) {
 func (h *handler) UpdateOrder(ctx *gin.Context) {
 	var req UpdateOrderRequest
 
-	id, _ := strconv.Atoi(ctx.Param("id"))
+	id, err := strconv.Atoi(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": ErrInvalidID.Error(),
+		})
+		return
+	}
 
-	err := ctx.ShouldBindJSON(&req)
+	err = ctx.ShouldBindJSON(&req)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -120,9 +136,16 @@ func (h *handler) UpdateOrder(ctx *gin.Context) {
 
 	res, err := h.OrderService.UpdateOrder(uint(id), &req)
 	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"status":  "error",
+				"message": "order not found",
+			})
+			return
+		}
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
-			"message": "Null record affected",
+			"message": err.Error(),
 		})
 		return
 	}

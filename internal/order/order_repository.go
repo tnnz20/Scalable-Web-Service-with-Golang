@@ -1,8 +1,6 @@
 package order
 
 import (
-	"fmt"
-
 	"gorm.io/gorm"
 )
 
@@ -45,7 +43,7 @@ func (r *repository) Delete(orderId uint) error {
 	r.db.Where("order_id=?", orderId).Delete(&Item{})
 	err := r.db.Delete(&order)
 	if err.RowsAffected == 0 {
-		return fmt.Errorf("null")
+		return ErrNullRecordAffected
 	}
 
 	return nil
@@ -53,28 +51,30 @@ func (r *repository) Delete(orderId uint) error {
 
 func (r *repository) Update(orderReq *Order) (*Order, error) {
 	var order Order
+
 	if err := r.db.Preload("Item").First(&order, orderReq.Id).Error; err != nil {
 		return nil, err
 	}
 
-	fmt.Println("order repo", order)
-
 	order.CustomerName = orderReq.CustomerName
 	order.OrderedAt = orderReq.OrderedAt
 
-	for _, item := range orderReq.Item {
-		fmt.Println("111", item)
-		for i, existingItem := range orderReq.Item {
-			if existingItem.Id == uint(item.Id) {
-				order.Item[i] = Item{
-					Id:          item.Id,
-					Code:        item.Code,
-					Description: item.Description,
-					Quantity:    item.Quantity,
-				}
-				break
-			}
+	// Update item
+	for _, newItem := range orderReq.Item {
+		existingItem := Item{
+			Id:      newItem.Id,
+			OrderID: order.Id,
 		}
+
+		// Check if item exist
+		if err := r.db.First(&existingItem).Error; err != nil {
+			continue
+		}
+
+		existingItem.Code = newItem.Code
+		existingItem.Description = newItem.Description
+		existingItem.Quantity = newItem.Quantity
+		r.db.Save(&existingItem) // Update item
 	}
 
 	r.db.Save(&order)

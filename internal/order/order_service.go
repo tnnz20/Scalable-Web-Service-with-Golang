@@ -1,7 +1,5 @@
 package order
 
-import "fmt"
-
 type service struct {
 	OrderRepository Repository
 }
@@ -52,7 +50,7 @@ func (s *service) GetOrder() (*[]GetOrderResponse, error) {
 	}
 
 	if len(*results) == 0 {
-		return nil, fmt.Errorf("empty")
+		return nil, ErrOrderEmpty
 	}
 
 	for _, result := range *results {
@@ -70,10 +68,7 @@ func (s *service) GetOrder() (*[]GetOrderResponse, error) {
 func (s *service) DeleteOrder(req *DeleteOrderRequest) error {
 	err := s.OrderRepository.Delete(req.Id)
 	if err != nil {
-		if err.Error() == "null" {
-			return err
-		}
-		return fmt.Errorf("not found")
+		return err
 	}
 
 	return err

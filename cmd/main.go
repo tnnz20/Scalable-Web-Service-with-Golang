@@ -20,17 +20,22 @@ func main() {
 		panic(err)
 	}
 
-	app := gin.Default()
+	db.Migrate(&order.Order{}, &order.Item{})
 
-	orderRepo := order.NewRepository(db)
+	// Create Gin order
+	router := gin.Default()
+
+	orderRepo := order.NewRepository(db.GetDB())
 	orderSvc := order.NewService(orderRepo)
 	orderHandler := order.NewHandler(orderSvc)
 
 	// Route
-	app.POST("/orders", orderHandler.CreateOrder)
-	app.GET("/orders", orderHandler.GetOrder)
-	app.PUT("/orders/:id", orderHandler.UpdateOrder)
-	app.DELETE("/orders/:id", orderHandler.DeleteOrder)
+	order := router.Group("/orders")
 
-	app.Run(":8080")
+	order.POST("", orderHandler.CreateOrder)
+	order.GET("", orderHandler.GetOrder)
+	order.PUT("/:id", orderHandler.UpdateOrder)
+	order.DELETE("/:id", orderHandler.DeleteOrder)
+
+	router.Run(":8080")
 }

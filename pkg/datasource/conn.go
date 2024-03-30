@@ -5,13 +5,16 @@ import (
 	"log"
 
 	"github.com/tnnz20/Scalable-Web-Service-with-Golang/config"
-	"github.com/tnnz20/Scalable-Web-Service-with-Golang/internal/order"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
-func NewDatabase(cfg config.DatabaseConfig) (*gorm.DB, error) {
+type Database struct {
+	db *gorm.DB
+}
+
+func NewDatabase(cfg config.DatabaseConfig) (*Database, error) {
 	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable",
 		cfg.Host, cfg.User, cfg.Password, cfg.Name, cfg.Port)
 
@@ -24,11 +27,26 @@ func NewDatabase(cfg config.DatabaseConfig) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	// Migrate data
-	log.Println("Migrate schema...")
-	db.AutoMigrate(&order.Order{}, &order.Item{})
-	log.Println("Migrate Done.")
-
 	log.Println("Successfully Connect to Database")
-	return db, nil
+	Db := &Database{db: db}
+	return Db, nil
+}
+
+func (d *Database) GetDB() *gorm.DB {
+	return d.db
+}
+
+func (d *Database) Close() {
+	sqlDB, err := d.db.DB()
+	if err != nil {
+		log.Fatalf("Failed to close database: %v\n", err)
+	}
+	sqlDB.Close()
+	log.Println("Database connection closed")
+}
+
+func (d *Database) Migrate(args ...interface{}) {
+	log.Println("Migrate schema...")
+	d.db.AutoMigrate(args...)
+	log.Println("Migrate Done.")
 }
